@@ -90,7 +90,7 @@ if (!seal.ext.find('留言板')) {
     cmddel.solve = (ctx, msg, cmdArgs) => {
         // console.log("triggered")
         let val = cmdArgs.getArgN(1)
-        let sendName = ctx.player.name
+        let sendId = ctx.player.userId
         switch (val) {
             case 'help': {
                 const ret = seal.ext.newCmdExecuteResult(true);
