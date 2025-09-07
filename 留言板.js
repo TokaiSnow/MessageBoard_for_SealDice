@@ -10,7 +10,7 @@
    骰主可以使用.查看留言板 来查看所有已有留言，并且使用.删除留言 （编号）来删除指定留言。
    */ 
 // @license      MIT
-// @githubURL  https://github.com/TokaiSnow/MessageBoard_for_SealDice
+// @homepageURL  https://github.com/TokaiSnow
 // ==/UserScript==
 if (!seal.ext.find('留言板')) {
     const ext = seal.ext.new('留言板', 'TokaiSnow', '1.0.0');
@@ -20,7 +20,7 @@ if (!seal.ext.find('留言板')) {
     const board = JSON.parse(ext.storageGet("board") || '[]');
     const preboard = JSON.parse(ext.storageGet("preboard") || '[]');
 
-    //扔瓶子
+    //写留言
     cmdhrow.name = '写留言';
     cmdhrow.help = '用.写留言 ';
     cmdhrow.solve = (ctx, msg, cmdArgs) => {
@@ -47,7 +47,7 @@ if (!seal.ext.find('留言板')) {
     // 注册命令
     ext.cmdMap['写留言'] = cmdhrow;
 
-    //捡瓶子
+    //读留言
     const cmdget = seal.ext.newCmdItemInfo();
     cmdget.name = '读留言';
     cmdget.help = '随机阅读一段留言';
@@ -122,7 +122,7 @@ if (!seal.ext.find('留言板')) {
     cmdshow.solve = (ctx, msg, cmdArgs) => {
         // console.log("triggered")
         let val = cmdArgs.getArgN(1)
-        let sendName = ctx.player.name
+        let sendId = ctx.player.userId
         switch (val) {
             case 'help': {
                 const ret = seal.ext.newCmdExecuteResult(true);
@@ -177,7 +177,7 @@ if (!seal.ext.find('留言板')) {
                     return seal.ext.newCmdExecuteResult(true);
                 }
                 text=preboard[0]
-                seal.replyToSender(ctx, msg, "text")
+                seal.replyToSender(ctx, msg, text)
                 return seal.ext.newCmdExecuteResult(true);
             }
         }
@@ -255,5 +255,4 @@ if (!seal.ext.find('留言板')) {
     }
     // 注册命令
     ext.cmdMap['拒绝过审留言'] = cmddisagree;
-
 }
