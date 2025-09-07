@@ -19,6 +19,7 @@ if (!seal.ext.find('留言板')) {
     seal.ext.register(ext);
     const board = JSON.parse(ext.storageGet("board") || '[]');
     const preboard = JSON.parse(ext.storageGet("preboard") || '[]');
+    const masterId="QQ:114514" //将这里的数字改为骰主的qq号
 
     //写留言
     cmdhrow.name = '写留言';
@@ -130,7 +131,7 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!="QQ:2661869060" && sendId!="QQ:1220126228"){
+                if(sendId!=masterId){
                     seal.replyToSender(ctx, msg, "仅骰主有权限查看所有留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
@@ -168,7 +169,7 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!="QQ:2661869060" && sendId!="QQ:1220126228"){
+                if(sendId!=masterId){
                     seal.replyToSender(ctx, msg, "仅骰主有权限审核留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
@@ -201,7 +202,7 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!="QQ:2661869060" && sendId!="QQ:1220126228"){
+                if(sendId!=masterId){
                     seal.replyToSender(ctx, msg, "仅骰主有权限审核留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
@@ -237,7 +238,7 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!="QQ:2661869060" && sendId!="QQ:1220126228"){
+                if(sendId!=masterId){
                     seal.replyToSender(ctx, msg, "仅骰主有权限审核留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
