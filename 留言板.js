@@ -10,7 +10,7 @@
    骰主可以使用.查看留言板 来查看所有已有留言，并且使用.删除留言 （编号）来删除指定留言。
    */ 
 // @license      MIT
-// @homepageURL  https://github.com/TokaiSnow
+// @githubURL  https://github.com/TokaiSnow/MessageBoard_for_SealDice
 // ==/UserScript==
 if (!seal.ext.find('留言板')) {
     const ext = seal.ext.new('留言板', 'TokaiSnow', '1.0.0');
@@ -255,4 +255,5 @@ if (!seal.ext.find('留言板')) {
     }
     // 注册命令
     ext.cmdMap['拒绝过审留言'] = cmddisagree;
+
 }
