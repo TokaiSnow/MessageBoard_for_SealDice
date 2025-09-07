@@ -65,8 +65,6 @@ if (!seal.ext.find('留言板')) {
             default: {
                 if (board.length <= 0) {
                     if(Math.random>0.98)
-                        seal.replyToSender(ctx,msg,"小小的白山，大大的能量~")
-                    else
                         seal.replyToSender(ctx, msg, "留言板上空空如也")
                     return seal.ext.newCmdExecuteResult(true);
                 }
@@ -100,6 +98,10 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
+                if(sendId!=masterId){
+                    seal.replyToSender(ctx, msg, "仅骰主有权限删除留言")
+                    return seal.ext.newCmdExecuteResult(true);
+                }
                 id=parseInt(val,10)
                 if (id < 0 || id>=board.length) {
                     seal.replyToSender(ctx, msg, "错误的留言编号")
