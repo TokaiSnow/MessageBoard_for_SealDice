@@ -19,7 +19,8 @@ if (!seal.ext.find('留言板')) {
     seal.ext.register(ext);
     const board = JSON.parse(ext.storageGet("board") || '[]');
     const preboard = JSON.parse(ext.storageGet("preboard") || '[]');
-    const masterId="QQ:114514" //将这里的数字改为骰主的qq号
+    const masterId="QQ:114514" //将这里改为 QQ:骰主qq号
+    const sudoes=JSON.parse(ext.storageGet('sudoes') || `["${masterId}"]`);
 
     //写留言
     cmdhrow.name = '写留言';
@@ -64,8 +65,7 @@ if (!seal.ext.find('留言板')) {
             }
             default: {
                 if (board.length <= 0) {
-                    if(Math.random>0.98)
-                        seal.replyToSender(ctx, msg, "留言板上空空如也")
+                    seal.replyToSender(ctx, msg, "留言板上空空如也")
                     return seal.ext.newCmdExecuteResult(true);
                 }
                 let result = Math.floor(Math.random() * board.length)
@@ -98,12 +98,12 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!=masterId){
-                    seal.replyToSender(ctx, msg, "仅骰主有权限删除留言")
+                if(!sudoes.includes(sendId)){
+                    seal.replyToSender(ctx, msg, "仅审核人员有权限删除留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
                 id=parseInt(val,10)
-                if (id < 0 || id>=board.length) {
+                if (isNaN(id) || id < 0 || id>=board.length) {
                     seal.replyToSender(ctx, msg, "错误的留言编号")
                     return seal.ext.newCmdExecuteResult(true);
                 }
@@ -117,6 +117,7 @@ if (!seal.ext.find('留言板')) {
     }
     // 注册命令
     ext.cmdMap['删除留言'] = cmddel;
+    ext.cmdMap['k'] = cmddel;
 
     // 展示所有留言
     const cmdshow = seal.ext.newCmdItemInfo();
@@ -133,8 +134,8 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!=masterId){
-                    seal.replyToSender(ctx, msg, "仅骰主有权限查看所有留言")
+                if(!sudoes.includes(sendId)){
+                    seal.replyToSender(ctx, msg, "仅审核人员有权限查看所有留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
                 if(board.length<=0){
@@ -171,8 +172,8 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!=masterId){
-                    seal.replyToSender(ctx, msg, "仅骰主有权限审核留言")
+                if(!sudoes.includes(sendId)){
+                    seal.replyToSender(ctx, msg, "仅审核人员有权限审核留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
                 if(preboard.length<=0){
@@ -204,8 +205,8 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!=masterId){
-                    seal.replyToSender(ctx, msg, "仅骰主有权限审核留言")
+                if(!sudoes.includes(sendId)){
+                    seal.replyToSender(ctx, msg, "仅审核人员有权限审核留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
                 if(preboard.length<=0){
@@ -224,6 +225,7 @@ if (!seal.ext.find('留言板')) {
     }
     // 注册命令
     ext.cmdMap['同意过审留言'] = cmdagree;
+	ext.cmdMap['p'] = cmdagree;
 
     // 拒绝过审留言
     const cmddisagree = seal.ext.newCmdItemInfo();
@@ -240,8 +242,8 @@ if (!seal.ext.find('留言板')) {
                 return ret;
             }
             default: {
-                if(sendId!=masterId){
-                    seal.replyToSender(ctx, msg, "仅骰主有权限审核留言")
+                if(!sudoes.includes(sendId)){
+                    seal.replyToSender(ctx, msg, "仅审核人员有权限审核留言")
                     return seal.ext.newCmdExecuteResult(true);
                 }
                 if(preboard.length<=0){
@@ -258,4 +260,101 @@ if (!seal.ext.find('留言板')) {
     }
     // 注册命令
     ext.cmdMap['拒绝过审留言'] = cmddisagree;
+	ext.cmdMap['dp'] = cmddisagree;
+
+	// 查看所有审核人
+	const cmdshowsudo = seal.ext.newCmdItemInfo();
+    cmdshowsudo.name = '查看审核人';
+    cmdshowsudo.help = '查看所有已知审核人';
+    cmdshowsudo.solve = (ctx, msg, cmdArgs) => {
+        // console.log("triggered")
+        let val = cmdArgs.getArgN(1)
+        let sendId = ctx.player.userId
+        switch (val) {
+            case 'help': {
+                const ret = seal.ext.newCmdExecuteResult(true);
+                ret.showHelp = true;
+                return ret;
+            }
+            default: {
+				if(!sudoes.includes(sendId)){
+					seal.replyToSender(ctx, msg, '仅审核人员有权查看全部审核人')
+					return seal.ext.newCmdExecuteResult(true);
+				}
+				text="";
+                for(i in sudoes){
+					text=text+sudoes[i]+'\n';
+				}
+				seal.replyToSender(ctx, msg, text)
+				return seal.ext.newCmdExecuteResult(true);
+            }
+        }
+	}
+	ext.cmdMap['查看审核人'] = cmdshowsudo;
+
+	// 添加新的审核人
+	const cmdaddsudo = seal.ext.newCmdItemInfo();
+    cmdaddsudo.name = '添加审核人';
+    cmdaddsudo.help = '添加一位新的审核人，仅骰主有操作权限。需要输入完整的QQ号。';
+    cmdaddsudo.solve = (ctx, msg, cmdArgs) => {
+        // console.log("triggered")
+        let val = cmdArgs.getArgN(1)
+        let sendId = ctx.player.userId
+        switch (val) {
+            case 'help': {
+                const ret = seal.ext.newCmdExecuteResult(true);
+                ret.showHelp = true;
+                return ret;
+            }
+            default: {
+                if(sendId!=masterId){
+					seal.replyToSender(ctx, msg, '仅骰主有权限添加新的审核人')
+					return seal.ext.newCmdExecuteResult(true);
+				}
+				if(sudoes.includes('QQ:'+val)){
+					seal.replyToSender(ctx, msg, '该审核人已存在')
+					return seal.ext.newCmdExecuteResult(true);
+				}
+				sudoes.push('QQ:'+val);
+				ext.storageSet("sudoes", JSON.stringify(sudoes))
+                return seal.ext.newCmdExecuteResult(true);
+            }
+        }
+	}
+	ext.cmdMap['添加审核人'] = cmdaddsudo;
+
+	// 删除审核人
+	const cmddelsudo = seal.ext.newCmdItemInfo();
+    cmddelsudo.name = '删除审核人';
+    cmddelsudo.help = '删除一位现有审核人，仅骰主有操作权限。需要输入完整的QQ号。';
+    cmddelsudo.solve = (ctx, msg, cmdArgs) => {
+        // console.log("triggered")
+        let val = cmdArgs.getArgN(1)
+        let sendId = ctx.player.userId
+        switch (val) {
+            case 'help': {
+                const ret = seal.ext.newCmdExecuteResult(true);
+                ret.showHelp = true;
+                return ret;
+            }
+            default: {
+                if(sendId!=masterId){
+					seal.replyToSender(ctx, msg, '仅骰主有权限删除审核人')
+					return seal.ext.newCmdExecuteResult(true);
+				}
+				if(!sudoes.includes('QQ:'+val)){
+					seal.replyToSender(ctx, msg, '不存在该审核人')
+					return seal.ext.newCmdExecuteResult(true);
+				}
+				if('QQ:'+val===masterId){
+					seal.replyToSender(ctx, msg, '不可删除骰主自身的审核权限')
+					return seal.ext.newCmdExecuteResult(true);
+				}
+				sudoes.splice(sudoes.indexOf('QQ:'+val),1);
+				ext.storageSet("sudoes", JSON.stringify(sudoes))
+                return seal.ext.newCmdExecuteResult(true);
+            }
+        }
+	}
+	ext.cmdMap['删除审核人'] = cmddelsudo;
 }
